@@ -638,14 +638,14 @@ export default function Home() {
 
         <div className="inicial ">
           <div className="overflow-x-hidden overflow-y-auto h-screen mt-40">
-            <motion.h1
-              className="headertitulo"
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-            >
-              {t('presale-title')}
-            </motion.h1>
+          <motion.h1
+  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-center font-extrabold tracking-tight leading-[1.1] text-white mb-6"
+  initial={{ opacity: 0, y: -50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, delay: 0.2 }}
+>
+  {t('presale-title')}
+</motion.h1>
   
   {/* Centrar horizontalmente Progress bar */}
   <div className="flex flex-col md:flex-row  justify-center items-center h-full">
