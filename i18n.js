@@ -6,7 +6,7 @@ const resources = {
   en: {
     translation: {
       "revoluciona": "USVP Token: 🏛️💎 Transform your investments into luxury properties. Premium real estate's future, today. 🏆",
-      "Billetera": "Connect Wallet",
+      "Billetera": "First all, Connect your Wallet",
       "presale-title": "USVP Pre-Sale",
       "Escoger Token": "Choose Token",
       "Comprar Ahora": "Buy Now",
@@ -35,7 +35,7 @@ const resources = {
   sp: {
     translation: {
       "revoluciona": "Token USVP: 🏛️💎 Transforma tus inversiones en propiedades de lujo. El futuro del real estate premium, hoy. 🏆",
-      "Billetera": "Conectar Billetera",
+      "Billetera": "Primero que todo, conecte su  Billetera",
       "presale-title": "Preventa de USVP",
       "Escoger Token": "Escoger Token",
       "Comprar Ahora": "Comprar Ahora",

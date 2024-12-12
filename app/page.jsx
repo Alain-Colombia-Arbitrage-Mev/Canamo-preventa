@@ -152,7 +152,7 @@ export default function Home() {
   const [amountUSD, setAmountUSD] = useState(0);
   const [amountRaiX, setAmountRaiX] = useState(0);
 
-  const { address } = useAccount();
+  const { address, isConnected,isConnecting} = useAccount();
 
   const showMore = () => {
     controls.start({
@@ -297,36 +297,71 @@ export default function Home() {
 
 
   const actionHandler = useMemo(() => {
-
-    if (!address) {
-      return <button
-        className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
-      >
-        Connect
-      </button>
-    } else if (allowance >= parseEther(amountUSD.toString(), "wei")) {
-      return <button
-        onClick={buyHandler}
-        className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
-      >
-        Buy USVP NOW
-      </button>
-    } else if (allowance < parseEther(amountUSD.toString(), "wei") || !isApproveStarted) {
-      return <button
-        onClick={approveHandler}
-        className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
-      >
-        Approve
-      </button>
+    // No wallet connected
+    if (!isConnected) {
+      return (
+        <button
+          className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+        >
+          Connect
+        </button>
+      );
+    } 
+    // Approval needed or in progress
+    else if (allowance < parseEther(amountUSD.toString(), "wei") || !isApproveStarted) {
+      if (isApproveLoading) {
+        return (
+          <button
+            disabled
+            className="w-40 h-30 bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
+          >
+            Approving...
+          </button>
+        );
+      } else {
+        return (
+          <button
+            onClick={approveHandler}
+            className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+          >
+            Approve
+          </button>
+        );
+      }
+    } 
+    // Buy action ready or in progress
+    else {
+      if (isBuyLoading) {
+        return (
+          <button
+            disabled
+            className="w-40 h-30 bg-gray-400 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
+          >
+            Buying...
+          </button>
+        );
+      } else {
+        return (
+          <button
+            onClick={buyHandler}
+            className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+          >
+            Buy USVP NOW
+          </button>
+        );
+      }
     }
-  }, [address, allowance, isBuyStarted, amountUSD])
+  }, [isConnected, allowance, amountUSD, isApproveStarted, isApproveLoading, isBuyLoading, isBuyStarted]);
+  
+  // Assuming you've already destructured useAccount above in your component like this:
+  // const { address, isConnected } = useAccount();
 
   useEffect(() => {
-    let _selectedToken = selectedToken;
-    setSelectedToken({})
-    setSelectedToken(_selectedToken)
-  }, [isBuyStarted, isApproveStarted])
-
+    // Reset and re-set the selected token to trigger updates in components that depend on token changes
+    const _selectedToken = { ...selectedToken };
+    setSelectedToken({});
+    setSelectedToken(_selectedToken);
+  }, [isBuyStarted, isApproveStarted, selectedToken]);
   return (
     <I18nextProvider i18n={i18nfile}>
       <div className="min-h-screen bg-gray-200 flex">
@@ -699,7 +734,7 @@ export default function Home() {
 
   
 
-              
+              {/* Boton connect Presale Formulario */}
               <div className="rounded-2xl bg-gradient-to-r from-gray-500 via-orange-500 mt-20 to-yellow-500 p-1 shadow-xl">
                 <div className="block rounded-xl bg-white opacity-90 p-4 sm:p-6 lg:p-8">
                   <div className="mt-10">
