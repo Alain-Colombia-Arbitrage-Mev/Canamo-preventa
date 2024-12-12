@@ -510,6 +510,12 @@ video {
 .top-10 {
   top: 2.5rem;
 }
+.bottom-full {
+  bottom: 100%;
+}
+.z-50 {
+  z-index: 50;
+}
 .m-auto {
   margin: auto;
 }

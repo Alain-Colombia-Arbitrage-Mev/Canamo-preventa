@@ -522,6 +522,7 @@ export default function Home() {
                 width: '100%',
                 display: 'flex',
                 justifyContent: 'center',
+                position: 'relative'
               }}
             >
               <button
@@ -560,22 +561,22 @@ export default function Home() {
       )}
               </button>
               {isOpen && (
-                <div className="absolute mt-2 py-2 w-40 bg-white rounded shadow-lg">
-                  <button
-                    className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
-                    onClick={() => changeLanguage('en')}
-                  >
-                    <US title="United States" className="w-6 h-6 mr-2" />
-                    English
-                  </button>
-                  <button
-                    className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
-                    onClick={() => changeLanguage('sp')}
-                  >
-                    <ES title="Spanish" className="w-6 h-6 mr-2" />
-                    Español
-                  </button>
-                  <button
+      <div className="absolute bottom-full mb-2 py-2 w-40 bg-white rounded shadow-lg z-50">
+        <button
+          className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
+          onClick={() => changeLanguage('en')}
+        >
+          <US title="United States" className="w-6 h-6 mr-2" />
+          English
+        </button>
+        <button
+          className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
+          onClick={() => changeLanguage('sp')}
+        >
+          <ES title="Spanish" className="w-6 h-6 mr-2" />
+          Español
+        </button>
+        <button
           className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
           onClick={() => changeLanguage('zh')}
         >
@@ -596,10 +597,10 @@ export default function Home() {
           <SA title="Arabic" className="w-6 h-6 mr-2" />
           العربية
         </button>
-                </div>
-              )}
-            </div>
-          )}
+      </div>
+    )}
+  </div>
+)}
           <div>
             {datafooter.map((group, index) => (
               <div key={index} className="my-2">
