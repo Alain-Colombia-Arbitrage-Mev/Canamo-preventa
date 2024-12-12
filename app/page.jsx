@@ -681,6 +681,7 @@ export default function Home() {
                   </div>
                 </div>
 
+              
                 <div className="max-w-screen-md md:w-3/4 mx-auto">
                   <div className="flex flex-col md:flex-row space-y-2 items-center justify-center md:justify-start h-full py-4 px-4 bg-gray-800 rounded-xl md:space-x-10">
                     <div className="w-full md:w-2/3">
