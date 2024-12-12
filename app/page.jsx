@@ -1,6 +1,7 @@
 'use client';
 
 import Head from 'next/head';
+import CountdownTimer from './CountdownTimer'; 
 import { useState, useEffect, useMemo } from 'react';
 import {
   BsPlus,
@@ -133,6 +134,7 @@ const tokens = [
 
 export default function Home() {
   const { t, i18n } = useTranslation();
+  
 
   const changeLanguage = lng => {
     i18n.changeLanguage(lng);
@@ -208,7 +210,11 @@ export default function Home() {
     address: CONTRACT_ADDRESS,
     functionName: "remainingToken",
     watch: true
-  })
+  });
+
+  console.log('Remaining Tokens:', remainingToken);
+  console.log('Loading Remaining Tokens:', isRemainTokenLoading);
+
 
   const {
     isLoading: isAllowanceLoading,
@@ -258,6 +264,11 @@ export default function Home() {
     functionName: "buyFromToken",
     args: [selectedToken.id, address, parseEther(amountUSD.toString(), "wei")],
   });
+
+  console.log('Buy Handler:', buyHandler ? 'Available' : 'Not available');
+  console.log('Buy Loading:', isBuyLoading);
+  console.log('Buy Success:', isBuyStarted);
+  console.log('Buy Error:', buyError);
 
   const {
     write: approveHandler,
