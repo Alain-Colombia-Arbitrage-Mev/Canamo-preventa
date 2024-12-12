@@ -667,7 +667,7 @@ export default function Home() {
           {t("progress-date")}
         </p>
         <p className="w-full pb-8 text-sm tracking-wide leading-tight text-white">
-          {t("sale-ends-in")} {t("timer")} 
+          {t("sale-ends-in")} <CountdownTimer />
         </p>
         <div className="relative w-full h-5 bg-white rounded-lg">
           <div
