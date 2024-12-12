@@ -54,13 +54,13 @@ const {
 );
 
 const { wallets } = getDefaultWallets({
-  appName: 'RaiX Web3',
+  appName: 'USVP Web3',
   projectId,
   chains,
 });
 
 const dAppInfo = {
-  appName: 'RaiX Web3',
+  appName: 'USVP Web3',
 };
 
 const connectors = connectorsForWallets([

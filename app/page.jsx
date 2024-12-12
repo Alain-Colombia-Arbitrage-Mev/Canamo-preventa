@@ -17,8 +17,9 @@ import {
 
 import { US } from 'country-flag-icons/react/3x2';
 import { ES } from 'country-flag-icons/react/3x2';
+import { CN, RU, SA } from 'country-flag-icons/react/3x2';
 
-import { AiFillFire, AiFillMessage } from 'react-icons/ai';
+import { AiFillFire, AiFillMessage,AiFillDollarCircle } from 'react-icons/ai';
 import imgreferido from './assets/referido.png';
 
 import { motion, useAnimation } from 'framer-motion';
@@ -49,8 +50,9 @@ const data = [
     name: 'Pre venta',
     items: [
       {
-        title: 'Comprar',
-        icon: AiFillFire,
+        title: 'Comprar USDT ',
+        icon: AiFillDollarCircle,
+        link: 'https://onramp.gatefi.com/?merchantId=3e1a127a-0da9-45aa-8cb8-06cf343b8ca0&cryptoCurrency=USDT-BEP20&cryptoCurrencyLock=true&wallet=0xbf646CD04B14eb9159d2000e73C4C339A3C980d9'
       },
       /*    {
         title: 'Most Upvoted',
@@ -296,7 +298,7 @@ export default function Home() {
         onClick={buyHandler}
         className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
       >
-        Buy WCBD NOW
+        Buy USVP NOW
       </button>
     } else if (allowance < parseEther(amountUSD.toString(), "wei") || !isApproveStarted) {
       return <button
@@ -318,7 +320,7 @@ export default function Home() {
     <I18nextProvider i18n={i18nfile}>
       <div className="min-h-screen bg-gray-200 flex">
         <Head>
-          <title>Sitio de Preventa | RaiX</title>
+          <title>Sitio de Preventa | USVP </title>
           <meta
             name="description"
             content="Participa en la comunidad más disruptiva del Real State y el Web3.0, el futuro de los servicios financieros e innmobiliarios"
@@ -349,10 +351,10 @@ export default function Home() {
             >
               <Image
                 alt="logo"
-                src={require('./assets/logo.png')}
+                src={require('./assets/logopreventa.png')}
                 className=" w-20"
               />
-              <motion.p className="text-black pb-4 pt-2">CanamoGlobal </motion.p>
+              <motion.p className="text-black pb-4 pt-2">USVP  </motion.p>
             </div>
           )}
           {!active && (
@@ -365,7 +367,7 @@ export default function Home() {
                 src={require('./assets/logo.png')}
                 className=" w-10"
               />
-              <motion.p className="text-black pb-4 pt-2">RaiX</motion.p>
+              <motion.p className="text-black pb-4 pt-2">USVP</motion.p>
             </div>
           )}
           <div
@@ -491,17 +493,25 @@ export default function Home() {
                 </motion.p>
 
                 {group.items.map((item, index2) => (
-                  <div key={index2} className="flex px-4 py-1 cursor-pointer">
-                    <item.icon className="text-lg text-gray-500" />
-                    <motion.p
-                      animate={controlText}
-                      className="ml-4 text-sm font-bold text-gray-400"
-                    >
-                      {' '}
-                      {item.title}
-                    </motion.p>
-                  </div>
-                ))}
+  <div 
+    key={index2} 
+    className="flex px-4 py-1 cursor-pointer"
+    onClick={() => {
+      if (item.link) {
+        window.open(item.link, '_blank');
+      }
+    }}
+  >
+    <item.icon className="text-lg text-gray-500" />
+    <motion.p
+      animate={controlText}
+      className="ml-4 text-sm font-bold text-gray-400"
+    >
+      {' '}
+      {item.title}
+    </motion.p>
+  </div>
+))}
               </div>
             ))}
           </div>
@@ -518,17 +528,36 @@ export default function Home() {
                 className="flex items-center text-white bg-black border border-black focus:outline-none p-2 rounded"
                 onClick={() => setIsOpen(!isOpen)}
               >
-                {i18n.language === 'en' ? (
-                  <>
-                    <US title="United States" className="w-6 h-6 mr-2" />
-                    EN
-                  </>
-                ) : (
-                  <>
-                    <ES title="Spanish" className="w-6 h-6 mr-2" />
-                    ES
-                  </>
-                )}
+                 {i18n.language === 'en' && (
+        <>
+          <US title="United States" className="w-6 h-6 mr-2" />
+          EN
+        </>
+      )}
+      {i18n.language === 'sp' && (
+        <>
+          <ES title="Spanish" className="w-6 h-6 mr-2" />
+          ES
+        </>
+      )}
+      {i18n.language === 'zh' && (
+        <>
+          <CN title="Chinese" className="w-6 h-6 mr-2" />
+          中文
+        </>
+      )}
+      {i18n.language === 'ru' && (
+        <>
+          <RU title="Russian" className="w-6 h-6 mr-2" />
+          РУ
+        </>
+      )}
+      {i18n.language === 'ar' && (
+        <>
+          <SA title="Arabic" className="w-6 h-6 mr-2" />
+          ع
+        </>
+      )}
               </button>
               {isOpen && (
                 <div className="absolute mt-2 py-2 w-40 bg-white rounded shadow-lg">
@@ -546,6 +575,27 @@ export default function Home() {
                     <ES title="Spanish" className="w-6 h-6 mr-2" />
                     Español
                   </button>
+                  <button
+          className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
+          onClick={() => changeLanguage('zh')}
+        >
+          <CN title="Chinese" className="w-6 h-6 mr-2" />
+          中文
+        </button>
+        <button
+          className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
+          onClick={() => changeLanguage('ru')}
+        >
+          <RU title="Russian" className="w-6 h-6 mr-2" />
+          Русский
+        </button>
+        <button
+          className="flex items-center w-full text-black px-4 py-2 hover:bg-gray-200"
+          onClick={() => changeLanguage('ar')}
+        >
+          <SA title="Arabic" className="w-6 h-6 mr-2" />
+          العربية
+        </button>
                 </div>
               )}
             </div>
@@ -619,12 +669,12 @@ export default function Home() {
                     </p>
 
                     <p className="w-full pb-8 text-sm tracking-wide leading-tight text-white">
-                      {t( "target")} 1,000,000 WCBD 
+                      {t( "target")} 1,000,000 USVP 
                     </p>
                     <div className="miboton">
                       <div className="opacity-95 border rounded-lg border-white px-4">
                       <p className="m-auto inset-0 text-sm font-medium leading-normal text-center text-white py-2" style={{ cursor: "pointer" }}>
-  <a href="https://canamoglobal.ai">{t("visit-website")}</a>
+  <a href="https://www.usvptoken.com/">{t("visit-website")}</a>
 </p>
                       </div>
                     </div>
@@ -662,6 +712,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+
+              
               <div className="rounded-2xl bg-gradient-to-r from-gray-500 via-orange-500 mt-20 to-yellow-500 p-1 shadow-xl">
                 <div className="block rounded-xl bg-white opacity-90 p-4 sm:p-6 lg:p-8">
                   <div className="mt-10">
@@ -670,7 +722,7 @@ export default function Home() {
                     </h3>
 
                     <p className="mt-2 text-sm text-gray-500">
-                     {t("tokensventa")}<p className="bold">1,000,000 WCBD</p>
+                     {t("tokensventa")}<p className="bold">1,000,000 USVP</p>
                     </p>
                     <p className="mt-2 text-sm text-gray-500">
                      {t("precio")}<p className="bold">0,15 USD</p>
@@ -750,7 +802,7 @@ export default function Home() {
                     onClick={() => write?.()}
                     className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
                   >
-                    Comprar
+                    Comprar 
                   </button>
                 </div> */}
                 <div className="flex items-center justify-center mt-3">

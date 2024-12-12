@@ -35,7 +35,7 @@ contract RaizDex is ERC20, AccessControl, Pausable {
         address _rewardWallet,
         uint256 _maxTransactionPercentage,
         uint256 _maxWalletHoldingPercentage
-    ) ERC20("RaizDex", "Raix") {
+    ) ERC20("RaizDex", "USVP") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(BURNER_ROLE, msg.sender);
         rewardWallet = _rewardWallet;
