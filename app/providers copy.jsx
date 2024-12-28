@@ -7,7 +7,7 @@ import {
   connectorsForWallets,
   darkTheme
 } from '@rainbow-me/rainbowkit';
-import { metaMaskWallet,walletConnectWallet, trustWallet,coinbaseWallet, injectedWallet,binanceWallet} from '@rainbow-me/rainbowkit/wallets';
+import { metaMaskWallet,walletConnectWallet, trustWallet,coinbaseWallet, injectedWallet} from '@rainbow-me/rainbowkit/wallets';
 import { 
   WagmiProvider, 
   createConfig,
@@ -28,8 +28,6 @@ const wallets = [
       trustWallet,
       coinbaseWallet,
       injectedWallet,
-      binanceWallet,
-      
       
     ],
   },
@@ -46,7 +44,7 @@ const config = createConfig({
   connectors,
   chains: [bsc],
   transports: {
-    [bsc.id]: http('https://bsc-dataseed.bnbchain.org'),
+    [bsc.id]: http('https://bsc.nodereal.io'),
   },
 });
 
