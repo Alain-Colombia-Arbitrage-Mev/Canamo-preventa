@@ -47,11 +47,6 @@
 	},
 	{
 		"inputs": [],
-		"name": "ClaimingPaused",
-		"type": "error"
-	},
-	{
-		"inputs": [],
 		"name": "EnforcedPause",
 		"type": "error"
 	},
@@ -88,16 +83,6 @@
 	{
 		"inputs": [],
 		"name": "InvalidTokenIndex",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "NoTokensToClaim",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "NoVestingSchedule",
 		"type": "error"
 	},
 	{
@@ -157,43 +142,6 @@
 		"inputs": [],
 		"name": "TransferFailed",
 		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "VestingNotStarted",
-		"type": "error"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "participantsProcessed",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "tokensDistributed",
-				"type": "uint256"
-			}
-		],
-		"name": "BatchVestingProcessed",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "bool",
-				"name": "isPaused",
-				"type": "bool"
-			}
-		],
-		"name": "ClaimingPausedToggled",
-		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -312,6 +260,19 @@
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "TokenPriceUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "uint256",
 				"name": "tokenIndex",
@@ -325,25 +286,6 @@
 			}
 		],
 		"name": "TokenStatusUpdated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "beneficiary",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "TokensClaimed",
 		"type": "event"
 	},
 	{
@@ -385,50 +327,6 @@
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "participant",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "totalClaimed",
-				"type": "uint256"
-			}
-		],
-		"name": "VestingCompleted",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "beneficiary",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "startTime",
-				"type": "uint256"
-			}
-		],
-		"name": "VestingInitialized",
-		"type": "event"
-	},
-	{
 		"stateMutability": "nonpayable",
 		"type": "fallback"
 	},
@@ -461,19 +359,6 @@
 	{
 		"inputs": [],
 		"name": "MIN_PURCHASE_STABLE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "TOKEN_PRICE_USD",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -566,7 +451,7 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "paymentAmount",
+				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -578,32 +463,6 @@
 				"type": "uint256"
 			}
 		],
-		"stateMutability": "pure",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "claimVesting",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "claimingPaused",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
 		"stateMutability": "view",
 		"type": "function"
 	},
@@ -612,137 +471,6 @@
 		"name": "endPresale",
 		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getDetailedPresaleInfo",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "priceUSD",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "minPurchaseStable",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "maxPurchase",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "vestingDurationTotal",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "vestingPeriods",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "cliffDuration",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "pure",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getDistributionPercentages",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "ownerPercent",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "liquidityPercent",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "stakingPercent",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "adminPercent",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "pure",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "participant",
-				"type": "address"
-			}
-		],
-		"name": "getNextUnlock",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "nextUnlockAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "nextUnlockTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "remainingUnlocks",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getParticipantCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getPendingVestingInfo",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "totalParticipants",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "pendingVestings",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "estimatedTokensToDistribute",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -770,77 +498,9 @@
 				"type": "bool"
 			},
 			{
-				"internalType": "bool",
-				"name": "isClaimingPaused",
-				"type": "bool"
-			},
-			{
 				"internalType": "uint256",
 				"name": "currentTime",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "beneficiary",
-				"type": "address"
-			}
-		],
-		"name": "getVestingInfo",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "totalAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimableNow",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "nextUnlock",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "initialized",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "isFullyVested",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "participant",
-				"type": "address"
-			}
-		],
-		"name": "hasParticipated",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -942,26 +602,13 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "token",
+				"name": "tokenAddress",
 				"type": "address"
 			},
 			{
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
-			}
-		],
-		"name": "rescueAnyToken",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "token",
-				"type": "address"
 			}
 		],
 		"name": "rescueTokens",
@@ -998,19 +645,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bool",
-				"name": "_paused",
-				"type": "bool"
-			}
-		],
-		"name": "toggleClaiming",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "tokenIndex",
 				"type": "uint256"
@@ -1024,6 +658,19 @@
 		"name": "toggleToken",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "tokenPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -1091,6 +738,19 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "newPrice",
+				"type": "uint256"
+			}
+		],
+		"name": "updateTokenPrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
 			}
@@ -1109,63 +769,6 @@
 			}
 		],
 		"stateMutability": "pure",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "vestingSchedules",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "totalAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "startTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "lastClaimTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "initialized",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "isFullyVested",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawSaleTokens",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{

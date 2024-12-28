@@ -3,93 +3,61 @@
 import * as React from 'react';
 import {
   RainbowKitProvider,
-  getDefaultWallets,
+  getDefaultConfig,
   connectorsForWallets,
+  darkTheme
 } from '@rainbow-me/rainbowkit';
 import {
-  argentWallet,
+  metaMaskWallet,
+  walletConnectWallet,
   trustWallet,
-  ledgerWallet,
+  coinbaseWallet
 } from '@rainbow-me/rainbowkit/wallets';
-import {
-  configureChains,
+import { 
+  WagmiProvider, 
   createConfig,
-  WagmiConfig,
-  createClient,
+  http,
 } from 'wagmi';
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  goerli,
-  bsc,
-  bscTestnet,
-  avalancheFuji,
-} from 'wagmi/chains';
-
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { bsc } from 'wagmi/chains';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const projectId = 'HYF8ezl7Y6MVyFvSMIb6Mdhwbf90DeRq';
 
-const {
-  provider,
-  chains,
-  publicClient,
-  webSocketProvider,
-  webSocketPublicClient,
-} = configureChains(
-  [ bscTestnet ],
-  [
-    alchemyProvider({ apiKey: projectId }),
-    jsonRpcProvider({
-      rpc: chain => ({
-        http: `https://data-seed-prebsc-2-s1.bnbchain.org:8545`,
-      }),
-    }),
-    publicProvider(),
-  ]
-);
-
-const { wallets } = getDefaultWallets({
-  appName: 'USVP Web3',
-  projectId,
-  chains,
-});
-
-const dAppInfo = {
-  appName: 'USVP Web3',
-};
-
-const connectors = connectorsForWallets([
-  ...wallets,
+// Configure the wallets
+const wallets = [
   {
-    groupName: 'Other',
+    groupName: 'Popular',
     wallets: [
-      argentWallet({ projectId, chains }),
-      trustWallet({ projectId, chains }),
-      ledgerWallet({ projectId, chains }),
+      metaMaskWallet,
+      walletConnectWallet,
+      trustWallet,
+      coinbaseWallet,
     ],
   },
-]);
+];
 
-/* const client = createClient({
-  provider,
-  webSocketProvider,
-  autoConnect: true,
-  // added connectors from rainbowkit
-  connectors,
-}); */
+const connectors = connectorsForWallets(wallets, {
+  projectId: projectId,
+  appName: 'USVP Web3',
+  chains: [bsc],
+});
 
-const wagmiConfig = createConfig({
-  provider,
-  webSocketProvider,
-  autoConnect: true,
+// Create wagmi config
+const config = createConfig({
   connectors,
-  publicClient,
-  webSocketPublicClient,
+  chains: [bsc],
+  transports: {
+    [bsc.id]: http('https://1rpc.io/bnb'),
+  },
+});
+
+// Create the tanstack query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 export function Providers({ children }) {
@@ -97,10 +65,18 @@ export function Providers({ children }) {
   React.useEffect(() => setMounted(true), []);
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains} appInfo={dAppInfo}>
-        {mounted && children}
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider 
+          chains={[bsc]}
+          theme={darkTheme({
+            accentColor: '#7b3fe4',
+            accentColorForeground: 'white',
+          })}
+        >
+          {mounted && children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
