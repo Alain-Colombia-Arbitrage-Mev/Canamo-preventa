@@ -256,6 +256,32 @@
         "async": false
       }
     },
+    "(app-client)/./app/assets/WBNB.png": {
+      "*": {
+        "id": "(sc_client)/./app/assets/WBNB.png",
+        "name": "*",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      },
+      "": {
+        "id": "(sc_client)/./app/assets/WBNB.png",
+        "name": "",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      },
+      "default": {
+        "id": "(sc_client)/./app/assets/WBNB.png",
+        "name": "default",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      }
+    },
     "(app-client)/./app/assets/logo.png": {
       "*": {
         "id": "(sc_client)/./app/assets/logo.png",
@@ -327,6 +353,40 @@
       },
       "default": {
         "id": "(sc_client)/./app/assets/referido.png",
+        "name": "default",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      }
+    },
+    "(app-client)/./app/AddTokenButton.tsx": {
+      "*": {
+        "id": "(sc_client)/./app/AddTokenButton.tsx",
+        "name": "*",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      },
+      "": {
+        "id": "(sc_client)/./app/AddTokenButton.tsx",
+        "name": "",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      },
+      "addTokenToMetaMask": {
+        "id": "(sc_client)/./app/AddTokenButton.tsx",
+        "name": "addTokenToMetaMask",
+        "chunks": [
+          "app/page:static/chunks/app/page.js"
+        ],
+        "async": false
+      },
+      "default": {
+        "id": "(sc_client)/./app/AddTokenButton.tsx",
         "name": "default",
         "chunks": [
           "app/page:static/chunks/app/page.js"
@@ -1138,6 +1198,30 @@
       ],
       "async": false
     },
+    "/Volumes/devdisk/Canamo-preventa/app/assets/WBNB.png": {
+      "id": "(app-client)/./app/assets/WBNB.png",
+      "name": "*",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/assets/WBNB.png#": {
+      "id": "(app-client)/./app/assets/WBNB.png",
+      "name": "",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/assets/WBNB.png#default": {
+      "id": "(app-client)/./app/assets/WBNB.png",
+      "name": "default",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
     "/Volumes/devdisk/Canamo-preventa/app/assets/logo.png": {
       "id": "(app-client)/./app/assets/logo.png",
       "name": "*",
@@ -1204,6 +1288,38 @@
     },
     "/Volumes/devdisk/Canamo-preventa/app/assets/referido.png#default": {
       "id": "(app-client)/./app/assets/referido.png",
+      "name": "default",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/AddTokenButton.tsx": {
+      "id": "(app-client)/./app/AddTokenButton.tsx",
+      "name": "*",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/AddTokenButton.tsx#": {
+      "id": "(app-client)/./app/AddTokenButton.tsx",
+      "name": "",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/AddTokenButton.tsx#addTokenToMetaMask": {
+      "id": "(app-client)/./app/AddTokenButton.tsx",
+      "name": "addTokenToMetaMask",
+      "chunks": [
+        "app/page:static/chunks/app/page.js"
+      ],
+      "async": false
+    },
+    "/Volumes/devdisk/Canamo-preventa/app/AddTokenButton.tsx#default": {
+      "id": "(app-client)/./app/AddTokenButton.tsx",
       "name": "default",
       "chunks": [
         "app/page:static/chunks/app/page.js"

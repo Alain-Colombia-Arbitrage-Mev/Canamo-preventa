@@ -41,12 +41,12 @@ const {
   webSocketProvider,
   webSocketPublicClient,
 } = configureChains(
-  [ bscTestnet , avalancheFuji, bsc],
+  [ bscTestnet ],
   [
     alchemyProvider({ apiKey: projectId }),
     jsonRpcProvider({
       rpc: chain => ({
-        http: `https://bsc-dataseed.binance.org/`,
+        http: `https://data-seed-prebsc-2-s1.bnbchain.org:8545`,
       }),
     }),
     publicProvider(),
