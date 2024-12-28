@@ -7,12 +7,7 @@ import {
   connectorsForWallets,
   darkTheme
 } from '@rainbow-me/rainbowkit';
-import {
-  metaMaskWallet,
-  walletConnectWallet,
-  trustWallet,
-  coinbaseWallet
-} from '@rainbow-me/rainbowkit/wallets';
+import { walletConnectWallet, trustWallet,coinbaseWallet} from '@rainbow-me/rainbowkit/wallets';
 import { 
   WagmiProvider, 
   createConfig,
@@ -28,7 +23,6 @@ const wallets = [
   {
     groupName: 'Popular',
     wallets: [
-      metaMaskWallet,
       walletConnectWallet,
       trustWallet,
       coinbaseWallet,
@@ -47,7 +41,7 @@ const config = createConfig({
   connectors,
   chains: [bsc],
   transports: {
-    [bsc.id]: http('https://1rpc.io/bnb'),
+    [bsc.id]: http('https://bsc.nodereal.io'),
   },
 });
 
