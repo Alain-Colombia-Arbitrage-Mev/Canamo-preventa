@@ -1,26 +1,25 @@
+🌿🌍 Welcome to USVP Token! 📱
 
-ENG: 
-🌿🌍 Welcome to Canamo Global WCBD DApp! 📱
+🚀 Discover USVP, a token backed by real estate assets, enabling fractional real estate investment. The token address is: 0x3C85D4cd4243dF9329d984AC5ADdDdCbE633cef5. Operating on the Binance Smart Chain, you can acquire USVP using USDT and BUSD.
 
-🚀 Our decentralized application allows you to buy our token with ease. The token address is: 0x77EaA331C9F375c536C04A464a967fFd4AC8ca91. Powered by the Binance Smart Chain, you can purchase it using USDT, BUSD, and WBNB.
+⚙️ To invest, first approve the token spending, then proceed with your purchase using the button below.
 
-⚙️ To make a purchase, you need to approve the token spending and then proceed with the purchase using the button below.
+🏠 USVP empowers you to invest in real estate by owning fractions of properties. This opens up real estate investment to a broader audience, making it accessible and scalable.
 
-🌱 We are a token dedicated to the cultivation of medicinal CBD and THC cannabis in Colombia. Our mission is to provide high-quality cannabis for medicinal purposes.
+🌐 Available in English and Spanish: Choose your preferred language below:
 
-ES: 
+🇺🇸 ENG - English🇪🇸 ES - Español
 
-🌿🌍 ¡Bienvenido/a a Canamo Global WCBD DApp! 📱
+Spanish:
 
-🚀 Nuestra aplicación descentralizada te permite comprar nuestro token de manera sencilla. La dirección del token es: 0x77EaA331C9F375c536C04A464a967fFd4AC8ca91. Alimentado por la Binance Smart Chain, puedes adquirirlo utilizando USDT, BUSD y WBNB.
+🌿🌍 ¡Bienvenido/a al Token USVP! 📱
 
-⚙️ Para realizar una compra, debes aprobar el gasto del token y luego proceder con la compra utilizando el botón que se encuentra a continuación.
+🚀 Descubre USVP, un token respaldado por activos inmobiliarios, permitiendo la inversión fraccionada en bienes raíces. La dirección del token es: 0x3C85D4cd4243dF9329d984AC5ADdDdCbE633cef5. Funcionando en la Binance Smart Chain, puedes adquirir USVP utilizando USDT y BUSD.
 
-🌱 Somos un token dedicado al cultivo de cannabis medicinal CBD y THC en Colombia. Nuestra misión es proporcionar cannabis de alta calidad con fines medicinales.
+⚙️ Para invertir, primero aprueba el gasto del token y luego procede con tu compra usando el botón de abajo.
 
-🌐 Disponible en inglés y español. Selecciona tu idioma preferido a continuación:
+🏠 USVP te permite invertir en bienes raíces poseyendo fracciones de propiedades. Esto abre la inversión inmobiliaria a un público más amplio, haciéndola accesible y escalable.
 
-🇺🇸 ENG - English
-🇪🇸 ES - Español
+🌐 Disponible en inglés y español: Elige tu idioma preferido a continuación:
 
-¡Crezcamos juntos! 🌿🌍💚
+🇺🇸 ENG - Inglés🇪🇸 ES - Español
