@@ -13,6 +13,10 @@ body {
 .miboton{
 background-color: black;
 }
+
+.miboton2{
+  background-color: blue;
+  }
 .headertitulo{
   --tw-text-opacity:1;
   color:white;

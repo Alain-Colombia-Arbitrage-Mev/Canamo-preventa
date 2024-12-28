@@ -834,15 +834,22 @@ useEffect(() => {
                     </p>
 
                     <div className="miboton">
-                      <div className="opacity-95 border rounded-lg border-white px-4">
-                        <p className="m-auto inset-0 text-sm font-medium leading-normal text-center text-white py-2" style={{ cursor: "pointer" }}>
-                          <a href="https://www.usvprwa.com/">{t("visit-website")}</a>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+  <div className="opacity-95 border rounded-lg border-white px-4">
+    <p className="m-auto inset-0 text-sm font-medium leading-normal text-center text-white py-2" style={{ cursor: "pointer" }}>
+      <a href="https://www.usvprwa.com/">{t("visit-website")}</a>
+    </p>
+  </div>
+</div>
+<div className="miboton2 mt-4"> {/* Añadido mt-4 para dar espacio entre botones */}
+  <div className="opacity-95 border rounded-lg border-white px-4">
+    <p className="m-auto inset-0 text-sm font-medium leading-normal text-center text-white py-2" style={{ cursor: "pointer" }}>
+      <a href="https://www.usvprwa.com/whitepaper">Whitepaper</a>
+    </p>
+  </div>
+</div>
+</div>
+</div>
+</div>
 
               {/* Purchase Form */}
               <div className="rounded-2xl bg-gradient-to-r from-gray-500 via-orange-500 mt-20 to-yellow-500 p-1 shadow-xl mb-20">
