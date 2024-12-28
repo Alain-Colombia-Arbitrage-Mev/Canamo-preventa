@@ -836,7 +836,7 @@ useEffect(() => {
                     <div className="miboton">
                       <div className="opacity-95 border rounded-lg border-white px-4">
                         <p className="m-auto inset-0 text-sm font-medium leading-normal text-center text-white py-2" style={{ cursor: "pointer" }}>
-                          <a href="https://www.usvptoken.com/">{t("visit-website")}</a>
+                          <a href="https://www.usvprwa.com/">{t("visit-website")}</a>
                         </p>
                       </div>
                     </div>
