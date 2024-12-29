@@ -449,7 +449,8 @@ useEffect(() => {
   // Inicio del JSX
   return (
     <I18nextProvider i18n={i18nfile}>
-      <div className="min-h-screen bg-gray-200 flex">
+      <div className="min-h-screen bg-gray-200 flex flex-col md:flex-row">
+      {/* Sidebar */}
         <Head>
           <title>Sitio de Preventa | USVP </title>
           <meta
@@ -460,9 +461,9 @@ useEffect(() => {
         </Head>
 
         <motion.div
-          animate={controls}
-          className="max-w-[250px] animate duration-300 border-r border-gray-700 relative flex flex-col py-10 min-h-screen group"
-        >
+  animate={controls}
+  className="w-full h-auto md:h-screen border-b md:border-r border-gray-700 relative flex flex-col py-4 md:py-10"
+  >
           {active && (
             <BsFillArrowLeftSquareFill
               onClick={showLess}
@@ -505,8 +506,9 @@ useEffect(() => {
           <div
             className={`${active &&
               'border-green-400 border shadow-green-400/60 shadow-lg rounded-lg px-4'
-              } max-w-[220px] flex justify-center mx-2 flex-col mb-4`}
+              } flex justify-center mx-2 flex-col mb-4`}
           >
+            
             <motion.p
               animate={controlText}
               className="font-thin py-2 text-md pt-3"
@@ -522,6 +524,7 @@ useEffect(() => {
                 <BsWallet className="text-2xl mr-2" />
               </button>
             )}
+            <div className="flex flex-col items-center justify-center px-4 py-3 w-full"></div>
             {active && (
               <ConnectButton.Custom>
                 {({
