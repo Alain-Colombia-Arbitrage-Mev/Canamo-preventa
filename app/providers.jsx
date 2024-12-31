@@ -5,6 +5,7 @@ import { RainbowKitProvider, getDefaultConfig, darkTheme } from '@rainbow-me/rai
 import { bsc } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
+import { http } from 'viem';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,12 +15,15 @@ const queryClient = new QueryClient({
   },
 });
 
-  const config = getDefaultConfig({
-    appName: 'USVP Web3',
-    projectId: 'HYF8ezl7Y6MVyFvSMIb6Mdhwbf90DeRq',
-    chains: [bsc],
-    ssr: true,
-  });
+const config = getDefaultConfig({
+  appName: 'USVP Web3',
+  projectId: 'HYF8ezl7Y6MVyFvSMIb6Mdhwbf90DeRq',
+  chains: [bsc],
+  transports: {
+    [bsc.id]: http('https://bsc-dataseed.bnbchain.org')
+  },
+  ssr: true,
+});
 
 export function Providers({ children }) {
   const [mounted, setMounted] = React.useState(false);
