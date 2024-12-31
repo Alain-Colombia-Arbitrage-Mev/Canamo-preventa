@@ -8,7 +8,9 @@ import {
   useReadContract,
   useWriteContract,
   useSimulateContract,
+  useWaitForTransaction,
   useWatchContractEvent,
+  useWaitForTransactionReceipt ,
   useConfig,
 } from 'wagmi';
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
@@ -97,6 +99,8 @@ export default function Home() {
   const [amountUSD, setAmountUSD] = useState('');
   const [AmountTokens, setAmountTokens] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
+  const [isPendingConfirmation, setIsPendingConfirmation] = useState(false);
+
   
 
   // Hooks
@@ -106,6 +110,19 @@ export default function Home() {
   const controls = useAnimation();
   const controlText = useAnimation();
   const controlTitleText = useAnimation();
+  // Hook para esperar la confirmación de la transacción
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    hash: transactionHash,
+    onSuccess(data) {
+      console.log("Transacción confirmada:", data);
+      setIsModalOpen(true);
+      setIsPendingConfirmation(false);
+    },
+    onError(error) {
+      console.error("Error en la confirmación:", error);
+      setIsPendingConfirmation(false);
+    }
+  });
 
   // Contract Read Operations
   const { data: totalSold = 0n, isError: totalSoldError } = useReadContract({
@@ -203,14 +220,13 @@ export default function Home() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   // Transaction Watcher
+  
   useWatchContractEvent({
     address: CONTRACT_ADDRESS,
     abi: presaleABI,
     eventName: 'TokensPurchased',
     onLogs(logs) {
-      console.log('New purchase event:', logs);
-      // Here you can handle successful purchases
-      setIsModalOpen(true);
+      console.log('Evento de compra detectado:', logs);
     },
   });
 
@@ -247,6 +263,7 @@ export default function Home() {
 
   try {
     setIsProcessing(true);
+    setIsPendingConfirmation(true);
     const hash = await buyTokens({
       address: CONTRACT_ADDRESS,
       abi: presaleABI,
@@ -257,11 +274,10 @@ export default function Home() {
       ]
     });
     console.log("Transacción enviada:", hash);
-    // El hash es directamente el valor retornado
     setTransactionHash(hash);
-    setIsModalOpen(true); // Mostrar modal después de una transacción exitosa
   } catch (error) {
     console.error("Error en compra:", error);
+    setIsPendingConfirmation(false);
   } finally {
     setIsProcessing(false);
   }
@@ -272,6 +288,7 @@ const handleApprove = useCallback(async () => {
   
   try {
     setIsProcessing(true);
+    setIsPendingConfirmation(true);
     const hash = await approve({
       address: selectedToken.address,
       abi: USDTABI,
@@ -282,18 +299,14 @@ const handleApprove = useCallback(async () => {
       ]
     });
     console.log("Aprobación enviada:", hash);
+    setTransactionHash(hash);
   } catch (error) {
     console.error("Error en aprobación:", error);
+    setIsPendingConfirmation(false);
   } finally {
     setIsProcessing(false);
   }
 }, [approve, selectedToken]);
-
-useEffect(() => {
-  if (!selectedToken) {
-    setSelectedToken(tokens[0]); // Assuming tokens[0] is a valid default token
-  }
-}, [selectedToken, tokens]);
 
   // Animation Controls
   const showMore = () => {
@@ -415,6 +428,7 @@ useEffect(() => {
 
   // Action Handler
   const actionHandler = useMemo(() => {
+    // Estado de conexión de wallet
     if (!isConnected) {
         return (
             <button 
@@ -426,6 +440,7 @@ useEffect(() => {
         );
     }
 
+    // Verificación de monto mínimo
     if (!amountUSD || parseFloat(amountUSD) < 1) {
         return (
             <button 
@@ -437,39 +452,57 @@ useEffect(() => {
         );
     }
 
-    if (isProcessing || isApprovePending || isBuyPending) {
+    // Estados de carga
+    if (allowanceLoading || balanceLoading) {
         return (
             <button 
                 className="w-40 h-30 bg-gray-500 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
                 disabled
             >
-                {isProcessing ? 'Processing...' :
-                 isApprovePending ? 'Approving...' :
-                 isBuyPending ? 'Buying...' : 'Loading...'}
+                Cargando...
             </button>
         );
     }
 
+    // Cálculo de montos
     const currentAllowance = allowance ? BigInt(allowance.toString()) : BigInt(0);
     const requiredAmount = amountUSD ? parseUnits(amountUSD, selectedToken?.decimals || 18) : BigInt(0);
 
+    // Si ya hay suficiente allowance, mostrar botón de compra
     if (currentAllowance >= requiredAmount) {
+        const isButtonDisabled = isProcessing || isPendingConfirmation || isConfirming;
+        
         return (
             <button
                 onClick={handleBuy}
-                className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+                className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
+                    ${!isButtonDisabled ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
+                    text-white font-semibold py-2 px-4 rounded-md shadow`}
+                disabled={isButtonDisabled}
             >
-                {t("Comprar Ahora")}
+                {isProcessing ? 'Procesando...' :
+                 isPendingConfirmation ? 'Pendiente...' :
+                 isConfirming ? 'Confirmando...' :
+                 t("Comprar Ahora")}
             </button>
         );
     }
 
+    // Si no hay suficiente allowance, mostrar botón de aprobación
+    const isApproveDisabled = isProcessing || isPendingConfirmation || isConfirming;
+    
     return (
         <button
             onClick={handleApprove}
-            className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+            className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
+                ${!isApproveDisabled ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
+                text-white font-semibold py-2 px-4 rounded-md shadow`}
+            disabled={isApproveDisabled}
         >
-            Aprobar
+            {isProcessing ? 'Procesando...' :
+             isPendingConfirmation ? 'Pendiente...' :
+             isConfirming ? 'Confirmando...' :
+             'Aprobar'}
         </button>
     );
 }, [
@@ -480,9 +513,11 @@ useEffect(() => {
     handleApprove,
     handleBuy,
     openConnectModal,
+    allowanceLoading,
+    balanceLoading,
     isProcessing,
-    isApprovePending,
-    isBuyPending,
+    isPendingConfirmation,
+    isConfirming,
     t
 ]);
 
