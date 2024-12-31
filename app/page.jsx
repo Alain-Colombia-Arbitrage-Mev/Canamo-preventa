@@ -129,11 +129,12 @@ export default function Home() {
   const controlTitleText = useAnimation();
 
   // Contract Read Operations
-  const { data: totalSold } = useReadContract({
+  const { data: totalSold = 0n } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: presaleABI,
     functionName: 'totalTokensSold',
-  });
+  }) || {};
+
 
   const { data: presaleStatus } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -144,13 +145,13 @@ export default function Home() {
   const selectedTokenAddress = selectedToken?.address;
   const selectedTokenDecimals = selectedToken?.decimals ?? 18;
   // Contract Reads with null checks
-  const { data: allowance, isLoading, isError } = useReadContract({
+  const { data: allowance = 0n, isLoading, isError } = useReadContract({
     address: selectedTokenAddress,
     abi: USDTABI,
     functionName: 'allowance',
     args: [address, CONTRACT_ADDRESS],
     enabled: Boolean(selectedTokenAddress && address && CONTRACT_ADDRESS),
-  });
+  }) || {};
 
   useEffect(() => {
     if (!isLoading && !isError && isConnected && selectedToken && amountUSD) {
@@ -158,13 +159,13 @@ export default function Home() {
     }
   }, [isLoading, isError, isConnected, selectedToken, amountUSD, allowance]);
 
-  const { data: balance } = useReadContract({
+  const { data: balance = 0n } = useReadContract({
     address: selectedTokenAddress,
     abi: USDTABI,
     functionName: 'balanceOf',
     args: [address],
     enabled: Boolean(selectedTokenAddress && address),
-  });
+  }) || {};
 
   // Contract Write Operations
   const { data: simulateApprove } = useSimulateContract({
@@ -223,14 +224,14 @@ export default function Home() {
   });
 
   // Handlers
-  const handleTokenSelection = (token) => {
+  const handleTokenSelection = useCallback((token) => {
     if (!token) {
       console.warn("Attempted to select invalid token");
       return;
     }
     setSelectedToken(token);
-    console.log(`Selected token:`, token);
-  };
+  }, []);
+
 
   const handleAmountUSDChange = (event) => {
     const value = event.target.value;
@@ -449,7 +450,8 @@ useEffect(() => {
   // Inicio del JSX
   return (
     <I18nextProvider i18n={i18nfile}>
-      <div className="min-h-screen bg-gray-200 flex flex-col md:flex-row">
+       {/* Layout principal con flexbox responsive */}
+       <div className="min-h-screen bg-gray-200 flex flex-col md:flex-row">
       {/* Sidebar */}
         <Head>
           <title>Sitio de Preventa | USVP </title>
@@ -461,9 +463,9 @@ useEffect(() => {
         </Head>
 
         <motion.div
-  animate={controls}
-  className="w-full h-auto md:h-screen border-b md:border-r border-gray-700 relative flex flex-col py-4 md:py-10"
-  >
+          animate={controls}
+         className="w-full md:max-w-[250px] border-b md:border-r border-gray-700 md:min-h-screen py-4 md:py-10 flex flex-col items-center"
+        >
           {active && (
             <BsFillArrowLeftSquareFill
               onClick={showLess}
@@ -476,19 +478,17 @@ useEffect(() => {
               className="absolute text-2xl text-black cursor-pointer -right-4 top-10"
             />
           )}
-
+         
+         <div className="w-full flex justify-center mb-4">
 {active && (
-            <div
-              className="flex items-center justify-center"
-              style={{ flexDirection: 'column' }}
-            >
+           <div className="flex flex-col items-center">
               <Image
                 alt="logo"
                 src={require('./assets/logopreventa.png')}
                 className="w-20"
               />
               <motion.p className="text-black pb-4 pt-2">USVP</motion.p>
-            </div>
+              </div>
           )}
           {!active && (
             <div
@@ -503,6 +503,7 @@ useEffect(() => {
               <motion.p className="text-black pb-4 pt-2">USVP</motion.p>
             </div>
           )}
+             </div>
           <div
             className={`${active &&
               'border-green-400 border shadow-green-400/60 shadow-lg rounded-lg px-4'
@@ -611,20 +612,20 @@ useEffect(() => {
             )}
           </div>
 
-          <div className="grow">
+          <div className="grow w-full flex flex-col items-center">  
             {data.map((group, index) => (
-              <div key={index} className="my-2 w-full">
+                 <div key={index} className="w-full">
                 <motion.p
                   animate={controlTitleText}
-                  className="mb-2 ml-4 text-sm font-bold text-gray-500 text-left w-full"
+                   className="text-sm font-bold text-gray-500 text-center mb-2"
                 >
                   {group.name}
                 </motion.p>
 
-                {group.items.map((item, index2) => (
-                  <div 
-                    key={index2} 
-                    className="flex w-full px-4 py-1 cursor-pointer items-center justify-start hover:bg-gray-100"
+                {(group.items || []).map((item, index2) => (
+                  <div
+                    key={index2}
+                    className="flex items-center justify-center w-full py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
                     onClick={() => {
                       if (item.onClick) {
                         item.onClick();
@@ -633,10 +634,10 @@ useEffect(() => {
                       }
                     }}
                   >
-                    <item.icon className="text-lg text-gray-500 min-w-[20px]" />
+                    {item.icon && <item.icon className="text-lg text-gray-500" />}
                     <motion.p
                       animate={controlText}
-                      className="ml-4 text-sm font-bold text-gray-400 text-left"
+                      className="ml-4 text-sm font-bold text-gray-400"
                     >
                       {item.title}
                     </motion.p>
@@ -734,10 +735,10 @@ useEffect(() => {
 
 <div>
             {datafooter.map((group, index) => (
-              <div key={index} className="my-2 w-full">
+              <div key={index} className="my-2">
                 <motion.p
                   animate={controlTitleText}
-                  className="mb-2 ml-4 text-sm font-bold text-gray-500 text-left w-full"
+                   className="mb-2 ml-4 text-sm font-bold text-gray-500"
                 >
                   {group.name}
                 </motion.p>
@@ -766,31 +767,31 @@ useEffect(() => {
           </div>
         </motion.div>
 
+        {/* Aqui acaba el sidebar/*}
+
         {/* Main Content Area */}
-        <div className="inicial min-h-screen pt-24 px-4">
-          <div className="container mx-auto">
-            <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-center font-extrabold tracking-tight leading-[1.1] text-white mb-12"
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-            >
-              {t('presale-title')}
-            </motion.h1>
+    <div className="inicial  w-full ">
+    <div className="overflow-y-auto min-h-screen px-4 md:px-8 pt-8">
+           <motion.h1
+  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-center font-extrabold tracking-tight leading-[1.1] text-white mb-6"
+  initial={{ opacity: 0, y: -50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, delay: 0.2 }}
+>
+  {t('presale-title')}
+</motion.h1>
 
             {/* Progress Bar Section */}
-            <div className="flex flex-col md:flex-row justify-center items-center h-full">
-              <div className="max-w-screen-md md:w-3/4 mt-14 space-y-20">
+            <div className="flex flex-col lg:flex-row justify-center items-center gap-8 mt-8">
+            <div className="w-full lg:w-3/5 space-y-8">
                 <div className="max-w-screen md:w-3/4 mx-auto items-center flex">
                   <div className="inline-flex flex-col space-y-2 items-center justify-end flex-1 h-full p-4 bg-blue-900 bg-opacity-75 rounded-xl">
-                    <p className="w-full text-2xl font-semibold text-white">
-                      {t("progress-date")}
-                    </p>
-                    <p className="w-full pb-8 text-sm tracking-wide leading-tight text-white">
-                    </p>
+                  <h2 className="text-2xl font-semibold text-white">
+                {t("progress-date")}
+              </h2>
 
                     {/* Progress Bar */}
-                    <div className="relative w-full h-5 bg-white rounded-lg">
+                    <div className="w-full h-3 sm:h-4 bg-white rounded-full mb-3 sm:mb-4">
                       {presaleStatus && (
                         <>
                           <div 
@@ -801,7 +802,7 @@ useEffect(() => {
                             aria-valuemax="100"
                             role="progressbar"
                           ></div>
-                          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-blue-600">
+                           <div className="flex justify-center items-center h-full text-xs font-bold">
                             {`${progress}%`}
                           </div>
                         </>
@@ -854,7 +855,7 @@ useEffect(() => {
 </div>
 </div>
 
-              {/* Purchase Form */}
+                {/* Boton connect Presale Formulario */}
               <div className="rounded-2xl bg-gradient-to-r from-gray-500 via-orange-500 mt-20 to-yellow-500 p-1 shadow-xl mb-20">
                 <div className="block rounded-xl bg-white opacity-90 p-4 sm:p-6 lg:p-8">
                   <div className="mt-10">
