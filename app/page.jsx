@@ -26,7 +26,7 @@ import IERC20ABI from '../contracts/IERC20.json';
 import Head from 'next/head';
 
 const usdticon = require('../app/assets/usdt.png');
-const busdicon = require('../app/assets/busd.png');
+const usdcicon = require('../app/assets/usdc.png');
 
 // Icons and images
 import { BsPlus, BsSearch, BsEyeFill, BsBookmarkFill, BsFillArrowLeftSquareFill, BsPeopleFill, BsTerminalFill, BsFillArrowRightSquareFill, BsWallet, BsDiscord } from 'react-icons/bs';
@@ -35,7 +35,7 @@ import { AiFillFire, AiFillMessage, AiFillDollarCircle } from 'react-icons/ai';
 import imgReferido from './assets/referido.png';
 
 // Contract address for mainnet
-const CONTRACT_ADDRESS = '0x9CB38Ffb9b0C73f51D753f98e669880966850806';
+const CONTRACT_ADDRESS = '0xD28373ea844f28A4be3f362e2146b372193fa927';
 
 // Contract address for testnet
 //const CONTRACT_ADDRESS = '0x83bf7C98c2f5A144C8EEE9a9Da77a06FCd674b78';
@@ -77,11 +77,11 @@ const tokens = [
     iconHeight: 24 
   },
   { 
-    label: 'BUSD', 
-    address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 
+    label: 'usdc', 
+    address: '0x8965349fb649A33a30cbFDa057D8eC2C48AbE2A2', 
     id: 1, 
     decimals: 18, 
-    icon: busdicon, 
+    icon: usdcicon, 
     iconWidth: 24, 
     iconHeight: 24 
   },
@@ -97,6 +97,7 @@ export default function Home() {
   const [amountUSD, setAmountUSD] = useState('');
   const [AmountTokens, setAmountTokens] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
+  
 
   // Hooks
   const { t, i18n } = useTranslation();
@@ -107,11 +108,14 @@ export default function Home() {
   const controlTitleText = useAnimation();
 
   // Contract Read Operations
-  const { data: totalSold = 0n } = useReadContract({
+  const { data: totalSold = 0n, isError: totalSoldError } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: presaleABI,
     functionName: 'totalTokensSold',
-  }) || {};
+    onError: (error) => {
+      console.error('Error reading total sold:', error);
+    }
+  });
 
 
   const { data: presaleStatus } = useReadContract({
@@ -123,27 +127,38 @@ export default function Home() {
   const selectedTokenAddress = selectedToken?.address;
   const selectedTokenDecimals = selectedToken?.decimals ?? 18;
   // Contract Reads with null checks
-  const { data: allowance = 0n, isLoading, isError } = useReadContract({
-    address: selectedTokenAddress,
+  const { 
+    data: allowance = 0n, 
+    isLoading: allowanceLoading,
+    isError: allowanceError 
+  } = useReadContract({
+    address: selectedToken?.address,
     abi: USDTABI,
     functionName: 'allowance',
-    args: [address, CONTRACT_ADDRESS],
-    enabled: Boolean(selectedTokenAddress && address && CONTRACT_ADDRESS),
-  }) || {};
-
+    args: address && CONTRACT_ADDRESS ? [address, CONTRACT_ADDRESS] : undefined,
+    enabled: Boolean(selectedToken?.address && address && CONTRACT_ADDRESS),
+    onError: (error) => {
+      console.error('Error checking allowance:', error);
+    }
+  });
+  
+  // Then update the effect to use the proper variables
   useEffect(() => {
-    if (!isLoading && !isError && isConnected && selectedToken && amountUSD) {
+    if (!allowanceLoading && !allowanceError && isConnected && selectedToken && amountUSD) {
       console.log('Allowance actual:', allowance);
     }
-  }, [isLoading, isError, isConnected, selectedToken, amountUSD, allowance]);
+  }, [allowanceLoading, allowanceError, isConnected, selectedToken, amountUSD, allowance]);
 
-  const { data: balance = 0n } = useReadContract({
-    address: selectedTokenAddress,
+  const { data: balance = 0n, isLoading: balanceLoading } = useReadContract({
+    address: selectedToken?.address,
     abi: USDTABI,
     functionName: 'balanceOf',
-    args: [address],
-    enabled: Boolean(selectedTokenAddress && address),
-  }) || {};
+    args: address ? [address] : undefined,
+    enabled: Boolean(selectedToken?.address && address),
+    onError: (error) => {
+      console.error('Error checking balance:', error);
+    }
+  });
 
   // Contract Write Operations
   const { data: simulateApprove } = useSimulateContract({
@@ -159,36 +174,34 @@ export default function Home() {
       selectedTokenAddress && 
       CONTRACT_ADDRESS && 
       amountUSD && 
-      parseFloat(amountUSD) >= 100
+      parseFloat(amountUSD) >= 1
     ),
   });
 
-  const { data: simulateBuy } = useSimulateContract({
+  const { data: simulateBuy, isError: isSimulateError, isLoading: isBuySimulating } = useSimulateContract({
     address: CONTRACT_ADDRESS,
     abi: presaleABI,
     functionName: 'buyTokens',
     args: [
       selectedToken?.id ?? 0,
       amountUSD && parseFloat(amountUSD) >= 1
-        ? BigInt(Math.floor(parseFloat(amountUSD) * 10 ** selectedTokenDecimals))
+        ? parseUnits(amountUSD, selectedToken?.decimals || 18)
         : BigInt(0)
     ],
     enabled: Boolean(
       isConnected &&
-      selectedTokenAddress && 
-      CONTRACT_ADDRESS &&
+      selectedToken &&
       amountUSD &&
-      parseFloat(amountUSD) >= 1 &&
-      allowance && 
-      BigInt(allowance.toString()) >= BigInt(Math.floor(parseFloat(amountUSD) * 10 ** selectedTokenDecimals))
+      parseFloat(amountUSD) >= 1
     ),
   });
 
 
   // Write contract hooks
-  const { writeContract: approve, isError: isApproveError } = useWriteContract();
-  const { writeContract: buyTokens, isError: isBuyError } = useWriteContract();
+  const { writeContract: approve, isPending: isApprovePending } = useWriteContract();
+  const { writeContract: buyTokens, isPending: isBuyPending } = useWriteContract();
 
+  const [isProcessing, setIsProcessing] = useState(false);
   // Transaction Watcher
   useWatchContractEvent({
     address: CONTRACT_ADDRESS,
@@ -229,34 +242,52 @@ export default function Home() {
   };
 
  // Handlers
- const handleBuy = useCallback(() => {
-  if (!simulateBuy?.request) {
-    console.log("Buy simulation not ready:", { simulateBuy });
-    return;
+ const handleBuy = useCallback(async () => {
+  if (!amountUSD || parseFloat(amountUSD) < 1) return;
+
+  try {
+    setIsProcessing(true);
+    const hash = await buyTokens({
+      address: CONTRACT_ADDRESS,
+      abi: presaleABI,
+      functionName: 'buyTokens',
+      args: [
+        selectedToken?.id ?? 0,
+        parseUnits(amountUSD, selectedToken?.decimals || 18)
+      ]
+    });
+    console.log("Transacción enviada:", hash);
+    // El hash es directamente el valor retornado
+    setTransactionHash(hash);
+    setIsModalOpen(true); // Mostrar modal después de una transacción exitosa
+  } catch (error) {
+    console.error("Error en compra:", error);
+  } finally {
+    setIsProcessing(false);
   }
+}, [buyTokens, amountUSD, selectedToken]);
+
+const handleApprove = useCallback(async () => {
+  if (!selectedToken?.address) return;
   
   try {
-    console.log("Executing buy with request:", simulateBuy.request);
-    buyTokens?.(simulateBuy.request);
+    setIsProcessing(true);
+    const hash = await approve({
+      address: selectedToken.address,
+      abi: USDTABI,
+      functionName: 'approve',
+      args: [
+        CONTRACT_ADDRESS,
+        BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")
+      ]
+    });
+    console.log("Aprobación enviada:", hash);
   } catch (error) {
-    console.error("Error in buy transaction:", error);
+    console.error("Error en aprobación:", error);
+  } finally {
+    setIsProcessing(false);
   }
-}, [simulateBuy, buyTokens]);
-
-
-const handleApprove = useCallback(() => {
-  if (!simulateApprove?.request) {
-    console.log("Approve simulation not ready:", { simulateApprove });
-    return;
-  }
-  
-  try {
-    console.log("Executing approve with request:", simulateApprove.request);
-    approve?.(simulateApprove.request);
-  } catch (error) {
-    console.error("Error in approve transaction:", error);
-  }
-}, [simulateApprove, approve]);
+}, [approve, selectedToken]);
 
 useEffect(() => {
   if (!selectedToken) {
@@ -354,15 +385,36 @@ useEffect(() => {
   }, [isConnected, selectedToken, amountUSD, allowance]);
   
   const { openConnectModal } = useConnectModal();
+
+
+  useEffect(() => {
+    console.log('Contract States:', {
+      isConnected,
+      selectedTokenId: selectedToken?.id,
+      amountUSD,
+      hasSimulation: !!simulateBuy?.request,
+      isBuySimulating,
+      isBuyPending,
+      isProcessing,
+      allowance: allowance?.toString(),
+      requiredAmount: amountUSD ? 
+        parseUnits(amountUSD, selectedToken?.decimals || 18).toString() : 
+        '0'
+    });
+  }, [
+    isConnected,
+    selectedToken?.id,
+    amountUSD,
+    simulateBuy?.request,
+    isBuySimulating,
+    isBuyPending,
+    isProcessing,
+    allowance
+  ]);
+
+
   // Action Handler
   const actionHandler = useMemo(() => {
-    console.log('ActionHandler - Estado actual:', {
-        isConnected,
-        selectedToken,
-        allowance: allowance?.toString(),
-        amountUSD,
-    });
-
     if (!isConnected) {
         return (
             <button 
@@ -374,31 +426,40 @@ useEffect(() => {
         );
     }
 
-    if (!amountUSD || parseFloat(amountUSD) < 100) {
+    if (!amountUSD || parseFloat(amountUSD) < 1) {
         return (
             <button 
                 className="w-40 h-30 bg-gray-500 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
                 disabled
             >
-                {t("Monto mínimo 100")}
+                {t("Monto mínimo 1")}
             </button>
         );
     }
 
-    // Cálculos de allowance con verificaciones de seguridad
+    if (isProcessing || isApprovePending || isBuyPending) {
+        return (
+            <button 
+                className="w-40 h-30 bg-gray-500 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
+                disabled
+            >
+                {isProcessing ? 'Processing...' :
+                 isApprovePending ? 'Approving...' :
+                 isBuyPending ? 'Buying...' : 'Loading...'}
+            </button>
+        );
+    }
+
     const currentAllowance = allowance ? BigInt(allowance.toString()) : BigInt(0);
-    const requiredAmount = amountUSD ? 
-        BigInt(Math.floor(parseFloat(amountUSD) * 10 ** (selectedToken?.decimals || 18))) : 
-        BigInt(0);
+    const requiredAmount = amountUSD ? parseUnits(amountUSD, selectedToken?.decimals || 18) : BigInt(0);
 
     if (currentAllowance >= requiredAmount) {
         return (
             <button
                 onClick={handleBuy}
                 className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
-                disabled={!simulateBuy?.request}
             >
-                {simulateBuy?.request ? t("Comprar Ahora") : 'Cargando...'}
+                {t("Comprar Ahora")}
             </button>
         );
     }
@@ -407,9 +468,8 @@ useEffect(() => {
         <button
             onClick={handleApprove}
             className="w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow"
-            disabled={!simulateApprove?.request}
         >
-            {simulateApprove?.request ? 'Aprobar' : 'Cargando...'}
+            Aprobar
         </button>
     );
 }, [
@@ -417,11 +477,12 @@ useEffect(() => {
     selectedToken,
     allowance,
     amountUSD,
-    simulateApprove,
-    simulateBuy,
     handleApprove,
     handleBuy,
     openConnectModal,
+    isProcessing,
+    isApprovePending,
+    isBuyPending,
     t
 ]);
 
