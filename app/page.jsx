@@ -87,28 +87,6 @@ const tokens = [
   },
 ];
 
-/* For testnet:
-const tokens = [
-  { 
-    label: 'USDT', 
-    address: '0x1495fa06722Af1D4E78984AAdC1B9143f44A3cfB', 
-    id: 0, 
-    decimals: 18, 
-    icon: usdticon, 
-    iconWidth: 24, 
-    iconHeight: 24 
-  },
-  { 
-    label: 'BUSD', 
-    address: '0x6a288dc5978419dD131eDBbdD93D3bf0b2014F44', 
-    id: 1, 
-    decimals: 18, 
-    icon: busdicon, 
-    iconWidth: 24, 
-    iconHeight: 24 
-  },
-];
-*/
 
 export default function Home() {
   // States
@@ -464,7 +442,7 @@ useEffect(() => {
 
         <motion.div
           animate={controls}
-         className="w-full md:max-w-[250px] border-b md:border-r border-gray-700 md:min-h-screen py-4 md:py-10 flex flex-col items-center"
+          className="w-full md:max-w-[250px] border-b md:border-r border-gray-700 md:min-h-screen py-4 md:py-10 flex flex-col items-center"
         >
           {active && (
             <BsFillArrowLeftSquareFill
@@ -491,23 +469,20 @@ useEffect(() => {
               </div>
           )}
           {!active && (
-            <div
-              className="flex items-center justify-center"
-              style={{ flexDirection: 'column' }}
-            >
+            <div className="flex flex-col items-center">
               <Image
                 alt="logo"
                 src={require('./assets/logo.png')}
                 className="w-10"
               />
-              <motion.p className="text-black pb-4 pt-2">USVP</motion.p>
+               <motion.p className="text-black pb-4 pt-2">USVP</motion.p>
             </div>
           )}
              </div>
           <div
             className={`${active &&
               'border-green-400 border shadow-green-400/60 shadow-lg rounded-lg px-4'
-              } flex justify-center mx-2 flex-col mb-4`}
+              }  w-full flex flex-col items-center justify-center mb-4`}
           >
             
             <motion.p
@@ -612,12 +587,12 @@ useEffect(() => {
             )}
           </div>
 
-          <div className="grow w-full flex flex-col items-center">  
+          <div className="grow w-full flex flex-col space-y-4">  
             {data.map((group, index) => (
-                 <div key={index} className="w-full">
+                  <div key={index} className="w-full flex flex-col items-center">
                 <motion.p
                   animate={controlTitleText}
-                   className="text-sm font-bold text-gray-500 text-center mb-2"
+                   className="text-sm font-bold text-gray-500 text-center w-full mb-2"
                 >
                   {group.name}
                 </motion.p>
@@ -625,7 +600,7 @@ useEffect(() => {
                 {(group.items || []).map((item, index2) => (
                   <div
                     key={index2}
-                    className="flex items-center justify-center w-full py-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+                    className="w-full flex items-center justify-center py-2 px-4 cursor-pointer hover:bg-gray-100 rounded-lg"
                     onClick={() => {
                       if (item.onClick) {
                         item.onClick();
@@ -733,7 +708,7 @@ useEffect(() => {
             </div>
           )}
 
-<div>
+<div className="w-full mt-auto">
             {datafooter.map((group, index) => (
               <div key={index} className="my-2">
                 <motion.p
