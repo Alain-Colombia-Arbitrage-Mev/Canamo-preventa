@@ -503,8 +503,8 @@ useEffect(() => {
 
         <motion.div
           animate={controls}
-          className="w-full md:max-w-[250px] border-b md:border-r border-gray-700 md:min-h-screen py-4 md:py-10 flex flex-col items-center"
-        >
+          className="w-full md:max-w-[250px] border-b md:border-r border-gray-700 md:min-h-screen py-4 md:py-10 flex flex-col items-center justify-center mx-auto"
+>
           {active && (
             <BsFillArrowLeftSquareFill
               onClick={showLess}
