@@ -227,7 +227,10 @@ export default function Home() {
   const formatTokenBalance = useCallback((rawBalance, token) => {
     if (!rawBalance || !token) return '0.00';
     try {
-      return formatUnits(rawBalance, token.decimals);
+      // Primero formateamos la cantidad usando formatUnits
+      const formatted = formatUnits(rawBalance, token.decimals);
+      // Luego convertimos a número y limitamos a 2 decimales
+      return Number(formatted).toFixed(2);
     } catch (error) {
       console.error('Error formatting balance:', error);
       return '0.00';
@@ -1025,10 +1028,10 @@ const handleApprove = useCallback(async () => {
 
                     <p className="mt-2 text-sm text-gray-500">
                       {t("balance")}: <span>
-                        {balance 
-                          ? formatUnits(balance, selectedToken?.decimals || 18)
-                          : "0.00"
-                        } {selectedToken?.label?.toUpperCase()}
+                      {balance 
+      ? formatTokenBalance(balance, selectedToken)
+      : "0.00"
+    } {selectedToken?.label?.toUpperCase()}
                       </span>
                     </p>
 
