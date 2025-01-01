@@ -40,6 +40,7 @@ import imgReferido from './assets/referido.png';
 // Contract address for mainnet
 const CONTRACT_ADDRESS = '0xEb258Ac69daF8374dA2295fB251d3C3b065A2Be7';
 
+
 // Contract address for testnet
 //const CONTRACT_ADDRESS = '0x83bf7C98c2f5A144C8EEE9a9Da77a06FCd674b78';
 
@@ -68,7 +69,7 @@ const datafooter = [
   },
 ];
 
-// Token configurations for mainnet
+//Token configurations for mainnet
 const tokens = [
   { 
     label: 'USDT', 
@@ -90,8 +91,32 @@ const tokens = [
     iconWidth: 24, 
     iconHeight: 24 
   },
-];
+]; 
 
+/*/// Token configurations for testnet
+const tokens = [
+  { 
+    label: 'USDT', 
+    address: '0x1495fa06722Af1D4E78984AAdC1B9143f44A3cfB', 
+    id: 0, 
+    decimals: 18, 
+    icon: usdticon, 
+    abi: USDTABI,
+    iconWidth: 24, 
+    iconHeight: 24 
+  },
+  { 
+    label: 'usdc', 
+    address: '0x6a288dc5978419dD131eDBbdD93D3bf0b2014F44', 
+    id: 1, 
+    decimals: 18, 
+    icon: usdcicon, 
+    abi: USDC,
+    iconWidth: 24, 
+    iconHeight: 24 
+  },
+];
+/*/// testnet 
 
 export default function Home() {
   // States
@@ -114,16 +139,20 @@ export default function Home() {
   const controlText = useAnimation();
   const controlTitleText = useAnimation();
   // Hook para esperar la confirmación de la transacción
+
+
+  // Modifica la forma en que esperas la transacción
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash: transactionHash,
+    enabled: Boolean(transactionHash),
     onSuccess(data) {
-      console.log("Transacción confirmada:", data);
+      console.log("Transaction confirmed. Hash:", transactionHash);
       setIsModalOpen(true);
-      setIsPendingConfirmation(false);
+      setIsProcessing(false);
     },
     onError(error) {
       console.error("Error en la confirmación:", error);
-      setIsPendingConfirmation(false);
+      setIsProcessing(false);
     }
   });
 
@@ -261,6 +290,13 @@ export default function Home() {
     eventName: 'TokensPurchased',
     onLogs(logs) {
       console.log('Evento de compra detectado:', logs);
+      // El hash de la transacción está en el evento
+      if (logs && logs[0] && logs[0].transactionHash) {
+        console.log('Hash encontrado en evento:', logs[0].transactionHash);
+        setTransactionHash(logs[0].transactionHash);
+        setIsProcessing(false); // Detener el estado de procesamiento
+        setIsModalOpen(true);   // Abrir el modal
+      }
     },
   });
 
@@ -297,34 +333,25 @@ export default function Home() {
   if (!amountUSD || parseFloat(amountUSD) < 1) return;
 
   try {
-      setIsProcessing(true);
-      setIsPendingConfirmation(true);
+    setIsProcessing(true);
+    console.log("Iniciando transacción...");
+    
+    await buyTokens({
+      address: CONTRACT_ADDRESS,
+      abi: presaleABI,
+      functionName: 'buyTokens',
+      args: [
+        selectedToken?.id ?? 0,
+        parseUnits(amountUSD, selectedToken?.decimals || 18)
+      ]
+    });
 
-      // Timeout para resetear el estado si la transacción tarda demasiado
-      const timeoutId = setTimeout(() => {
-          setIsProcessing(false);
-          setIsPendingConfirmation(false);
-          console.log('Transacción timeout - estado reseteado');
-      }, 30000); // 30 segundos de timeout
-
-      const hash = await buyTokens({
-          address: CONTRACT_ADDRESS,
-          abi: presaleABI,
-          functionName: 'buyTokens',
-          args: [
-              selectedToken?.id ?? 0,
-              parseUnits(amountUSD, selectedToken?.decimals || 18)
-          ]
-      });
-
-      clearTimeout(timeoutId); // Limpia el timeout si la transacción fue exitosa
-      console.log("Transacción enviada:", hash);
-      setTransactionHash(hash);
+    // El hash se manejará en el evento TokensPurchased
 
   } catch (error) {
-      console.error("Error en compra:", error);
-      setIsPendingConfirmation(false);
-      setIsProcessing(false);
+    console.error("Error en compra:", error);
+    setIsProcessing(false);
+    setTransactionHash('');
   }
 }, [buyTokens, amountUSD, selectedToken]);
 
@@ -333,36 +360,31 @@ const handleApprove = useCallback(async () => {
   if (!selectedToken?.address) return;
 
   try {
-      setIsProcessing(true);
-      setIsPendingConfirmation(true);
+    setIsProcessing(true);
+    setIsPendingConfirmation(true);
+    setTransactionHash(''); // Limpiar hash anterior si existe
 
-      // Timeout para resetear el estado si la transacción tarda demasiado
-      const timeoutId = setTimeout(() => {
-          setIsProcessing(false);
-          setIsPendingConfirmation(false);
-          console.log('Aprobación timeout - estado reseteado');
-      }, 30000); // 30 segundos de timeout
+    const hash = await approve({
+      address: selectedToken.address,
+      abi: selectedToken.abi,
+      functionName: 'approve',
+      args: [
+        CONTRACT_ADDRESS,
+        BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")
+      ]
+    });
 
-      const hash = await approve({
-          address: selectedToken.address,
-          abi: selectedToken.label.toLowerCase() === 'usdc' ? USDC : USDTABI,
-          functionName: 'approve',
-          args: [
-              CONTRACT_ADDRESS,
-              BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")
-          ]
-      });
-
-      clearTimeout(timeoutId); // Limpia el timeout si la aprobación fue exitosa
-      console.log("Aprobación enviada:", hash);
-      setTransactionHash(hash);
+    console.log("Aprobación enviada:", hash);
+    setTransactionHash(hash);
 
   } catch (error) {
-      console.error("Error en aprobación:", error);
-      setIsPendingConfirmation(false);
-      setIsProcessing(false);
+    console.error("Error en aprobación:", error);
+    setIsProcessing(false);
+    setIsPendingConfirmation(false);
+    setTransactionHash('');
   }
 }, [approve, selectedToken]);
+
 
 
 
@@ -530,20 +552,20 @@ const handleApprove = useCallback(async () => {
     // Si ya hay suficiente allowance, mostrar botón de compra
     if (currentAllowance >= requiredAmount) {
         return (
-            <button
-                onClick={handleBuy}
-                className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
-                    ${!isProcessing ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
-                    text-white font-semibold py-2 px-4 rounded-md shadow`}
-                disabled={isProcessing}
-            >
-                {isProcessing ? (
-                    <div className="flex items-center justify-center">
-                        <span className="animate-spin mr-2">⚡</span>
-                        {isPendingConfirmation ? 'Confirmando...' : 'Procesando...'}
-                    </div>
-                ) : t("Comprar Ahora")}
-            </button>
+          <button
+          onClick={handleBuy}
+          className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
+            ${!isProcessing ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
+            text-white font-semibold py-2 px-4 rounded-md shadow`}
+          disabled={isProcessing}
+        >
+          {isProcessing ? (
+            <div className="flex items-center justify-center">
+              <span className="animate-spin mr-2">⚡</span>
+              Procesando...
+            </div>
+          ) : t("Comprar Ahora")}
+        </button>
         );
     }
 
@@ -1093,11 +1115,19 @@ const handleApprove = useCallback(async () => {
 
               {/* Transaction Success Modal */}
               <TransactionSuccessModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                transactionHash={transactionHash}
-                amountPurchased={AmountTokens}
-              />
+  isOpen={isModalOpen} 
+  onClose={() => {
+    setIsModalOpen(false);
+    // Esperar a que la animación termine antes de limpiar
+    setTimeout(() => {
+      setTransactionHash('');
+      setAmountUSD('');
+      setAmountTokens('');
+    }, 300);
+  }}
+  transactionHash={transactionHash}
+  amountPurchased={AmountTokens}
+/>
             </div>
           </div>
         </div>

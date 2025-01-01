@@ -14,6 +14,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+// mainnet 
 
 const config = getDefaultConfig({
   appName: 'USVP Web3',
@@ -23,7 +24,23 @@ const config = getDefaultConfig({
     [bsc.id]: http('https://bsc-dataseed.bnbchain.org')
   },
   ssr: true,
-});
+}); 
+
+
+
+/*/  //testnet 
+const config = getDefaultConfig({
+  appName: 'USVP Web3',
+  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
+  chains: [bscTestnet ],
+  transports: {
+    [bscTestnet.id]: http('https://data-seed-prebsc-2-s1.bnbchain.org:8545')
+  },
+  ssr: true,
+}); 
+
+/*/ //testnet finaliza 
+
 
 export function Providers({ children }) {
   const [mounted, setMounted] = React.useState(false);
