@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
 
 const config = getDefaultConfig({
   appName: 'USVP Web3',
-  projectId: 'HYF8ezl7Y6MVyFvSMIb6Mdhwbf90DeRq',
+  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
   chains: [bsc],
   transports: {
     [bsc.id]: http('https://bsc-dataseed.bnbchain.org')
