@@ -21,10 +21,11 @@ import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18nfile from '../i18n';
 import { FaWallet } from 'react-icons/fa';
 import { addTokenToMetaMask } from './AddTokenButton';
-import presaleABI from '../contracts/Presale.json';
-import ERC20ABI from '../contracts/ERC20.json';
-import USDTABI from '../contracts/USDTABI.json';
-import IERC20ABI from '../contracts/IERC20.json';
+import presaleABI from '../contracts/Presale.json'; //abi de la preventa
+import ERC20ABI from '../contracts/ERC20.json'; // abi para erc20
+import USDTABI from '../contracts/USDTABI.json'; // abi para usdt
+import USDC from '../contracts/usdc.json'; // abi paa usdt 
+import IERC20ABI from '../contracts/IERC20.json'; //abi para ierc20 
 import Head from 'next/head';
 
 const usdticon = require('../app/assets/usdt.png');
@@ -37,7 +38,7 @@ import { AiFillFire, AiFillMessage, AiFillDollarCircle } from 'react-icons/ai';
 import imgReferido from './assets/referido.png';
 
 // Contract address for mainnet
-const CONTRACT_ADDRESS = '0xD28373ea844f28A4be3f362e2146b372193fa927';
+const CONTRACT_ADDRESS = '0xEb258Ac69daF8374dA2295fB251d3C3b065A2Be7';
 
 // Contract address for testnet
 //const CONTRACT_ADDRESS = '0x83bf7C98c2f5A144C8EEE9a9Da77a06FCd674b78';
@@ -75,15 +76,17 @@ const tokens = [
     id: 0, 
     decimals: 18, 
     icon: usdticon, 
+    abi: USDTABI,
     iconWidth: 24, 
     iconHeight: 24 
   },
   { 
     label: 'usdc', 
-    address: '0x8965349fb649A33a30cbFDa057D8eC2C48AbE2A2', 
+    address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 
     id: 1, 
     decimals: 18, 
     icon: usdcicon, 
+    abi: USDC,
     iconWidth: 24, 
     iconHeight: 24 
   },
@@ -150,10 +153,10 @@ export default function Home() {
     isError: allowanceError 
   } = useReadContract({
     address: selectedToken?.address,
-    abi: USDTABI,
+    abi: selectedToken?.abi, // Usa el ABI específico del token
     functionName: 'allowance',
-    args: address && CONTRACT_ADDRESS ? [address, CONTRACT_ADDRESS] : undefined,
-    enabled: Boolean(selectedToken?.address && address && CONTRACT_ADDRESS),
+    args: [address, CONTRACT_ADDRESS],
+    enabled: Boolean(selectedToken?.address && address && CONTRACT_ADDRESS && isConnected),
     onError: (error) => {
       console.error('Error checking allowance:', error);
     }
@@ -168,19 +171,16 @@ export default function Home() {
 
   const { data: balance = 0n, isLoading: balanceLoading } = useReadContract({
     address: selectedToken?.address,
-    abi: USDTABI,
+    abi: selectedToken?.abi, // Usa el ABI específico del token
     functionName: 'balanceOf',
-    args: address ? [address] : undefined,
-    enabled: Boolean(selectedToken?.address && address),
-    onError: (error) => {
-      console.error('Error checking balance:', error);
-    }
+    args: [address],
+    enabled: Boolean(selectedToken?.address && address && isConnected),
   });
 
   // Contract Write Operations
   const { data: simulateApprove } = useSimulateContract({
     address: selectedTokenAddress,
-    abi: USDTABI,
+    abi: selectedToken?.abi,
     functionName: 'approve',
     args: [
       CONTRACT_ADDRESS,
@@ -194,6 +194,16 @@ export default function Home() {
       parseFloat(amountUSD) >= 1
     ),
   });
+
+  const formatTokenBalance = useCallback((rawBalance, token) => {
+    if (!rawBalance || !token) return '0.00';
+    try {
+      return formatUnits(rawBalance, token.decimals);
+    } catch (error) {
+      console.error('Error formatting balance:', error);
+      return '0.00';
+    }
+  }, []);
 
   const { data: simulateBuy, isError: isSimulateError, isLoading: isBuySimulating } = useSimulateContract({
     address: CONTRACT_ADDRESS,
@@ -213,6 +223,30 @@ export default function Home() {
     ),
   });
 
+  useEffect(() => {
+    if (selectedToken && balance) {
+      console.log('Token Balance Debug:', {
+        token: selectedToken.label,
+        address: selectedToken.address,
+        rawBalance: balance.toString(),
+        decimals: selectedToken.decimals,
+        formattedBalance: formatTokenBalance(balance, selectedToken),
+        abiUsed: selectedToken.label.toLowerCase() === 'usdc' ? 'USDC ABI' : 'USDT ABI'
+      });
+    }
+  }, [selectedToken, balance, formatTokenBalance]);
+
+  useEffect(() => {
+    if (selectedToken?.label.toLowerCase() === 'usdc') {
+      console.log('USDC Specific Debug:', {
+        contractAddress: selectedToken.address,
+        walletAddress: address,
+        abiMethods: Object.keys(selectedToken.abi),
+        rawBalance: balance?.toString(),
+        enabled: Boolean(selectedToken.address && address && isConnected)
+      });
+    }
+  }, [selectedToken, address, balance, isConnected]);
 
   // Write contract hooks
   const { writeContract: approve, isPending: isApprovePending } = useWriteContract();
@@ -236,6 +270,7 @@ export default function Home() {
       console.warn("Attempted to select invalid token");
       return;
     }
+    console.log('Cambiando a token:', token.label, 'Address:', token.address);
     setSelectedToken(token);
   }, []);
 
@@ -262,51 +297,75 @@ export default function Home() {
   if (!amountUSD || parseFloat(amountUSD) < 1) return;
 
   try {
-    setIsProcessing(true);
-    setIsPendingConfirmation(true);
-    const hash = await buyTokens({
-      address: CONTRACT_ADDRESS,
-      abi: presaleABI,
-      functionName: 'buyTokens',
-      args: [
-        selectedToken?.id ?? 0,
-        parseUnits(amountUSD, selectedToken?.decimals || 18)
-      ]
-    });
-    console.log("Transacción enviada:", hash);
-    setTransactionHash(hash);
+      setIsProcessing(true);
+      setIsPendingConfirmation(true);
+
+      // Timeout para resetear el estado si la transacción tarda demasiado
+      const timeoutId = setTimeout(() => {
+          setIsProcessing(false);
+          setIsPendingConfirmation(false);
+          console.log('Transacción timeout - estado reseteado');
+      }, 30000); // 30 segundos de timeout
+
+      const hash = await buyTokens({
+          address: CONTRACT_ADDRESS,
+          abi: presaleABI,
+          functionName: 'buyTokens',
+          args: [
+              selectedToken?.id ?? 0,
+              parseUnits(amountUSD, selectedToken?.decimals || 18)
+          ]
+      });
+
+      clearTimeout(timeoutId); // Limpia el timeout si la transacción fue exitosa
+      console.log("Transacción enviada:", hash);
+      setTransactionHash(hash);
+
   } catch (error) {
-    console.error("Error en compra:", error);
-    setIsPendingConfirmation(false);
-  } finally {
-    setIsProcessing(false);
+      console.error("Error en compra:", error);
+      setIsPendingConfirmation(false);
+      setIsProcessing(false);
   }
 }, [buyTokens, amountUSD, selectedToken]);
 
+
 const handleApprove = useCallback(async () => {
   if (!selectedToken?.address) return;
-  
+
   try {
-    setIsProcessing(true);
-    setIsPendingConfirmation(true);
-    const hash = await approve({
-      address: selectedToken.address,
-      abi: USDTABI,
-      functionName: 'approve',
-      args: [
-        CONTRACT_ADDRESS,
-        BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")
-      ]
-    });
-    console.log("Aprobación enviada:", hash);
-    setTransactionHash(hash);
+      setIsProcessing(true);
+      setIsPendingConfirmation(true);
+
+      // Timeout para resetear el estado si la transacción tarda demasiado
+      const timeoutId = setTimeout(() => {
+          setIsProcessing(false);
+          setIsPendingConfirmation(false);
+          console.log('Aprobación timeout - estado reseteado');
+      }, 30000); // 30 segundos de timeout
+
+      const hash = await approve({
+          address: selectedToken.address,
+          abi: selectedToken.label.toLowerCase() === 'usdc' ? USDC : USDTABI,
+          functionName: 'approve',
+          args: [
+              CONTRACT_ADDRESS,
+              BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")
+          ]
+      });
+
+      clearTimeout(timeoutId); // Limpia el timeout si la aprobación fue exitosa
+      console.log("Aprobación enviada:", hash);
+      setTransactionHash(hash);
+
   } catch (error) {
-    console.error("Error en aprobación:", error);
-    setIsPendingConfirmation(false);
-  } finally {
-    setIsProcessing(false);
+      console.error("Error en aprobación:", error);
+      setIsPendingConfirmation(false);
+      setIsProcessing(false);
   }
 }, [approve, selectedToken]);
+
+
+
 
   // Animation Controls
   const showMore = () => {
@@ -387,6 +446,8 @@ const handleApprove = useCallback(async () => {
     }
   }, [amountUSD]);
 
+  
+
   useEffect(() => {
     if (isConnected && selectedToken && amountUSD) {
       if (allowance === undefined || allowance === null) {
@@ -398,6 +459,16 @@ const handleApprove = useCallback(async () => {
   }, [isConnected, selectedToken, amountUSD, allowance]);
   
   const { openConnectModal } = useConnectModal();
+
+  useEffect(() => {
+    console.log('Balance Debug:', {
+      token: selectedToken?.label,
+      address: selectedToken?.address,
+      balance: balance?.toString(),
+      usingABI: selectedToken?.label.toLowerCase() === 'usdc' ? 'USDC ABI' : 'USDT ABI',
+      enabled: Boolean(selectedToken?.address && address)
+    });
+  }, [selectedToken, balance, address]);
 
 
   useEffect(() => {
@@ -452,57 +523,45 @@ const handleApprove = useCallback(async () => {
         );
     }
 
-    // Estados de carga
-    if (allowanceLoading || balanceLoading) {
-        return (
-            <button 
-                className="w-40 h-30 bg-gray-500 text-white font-semibold py-2 px-4 rounded-md shadow cursor-not-allowed"
-                disabled
-            >
-                Cargando...
-            </button>
-        );
-    }
-
     // Cálculo de montos
     const currentAllowance = allowance ? BigInt(allowance.toString()) : BigInt(0);
     const requiredAmount = amountUSD ? parseUnits(amountUSD, selectedToken?.decimals || 18) : BigInt(0);
 
     // Si ya hay suficiente allowance, mostrar botón de compra
     if (currentAllowance >= requiredAmount) {
-        const isButtonDisabled = isProcessing || isPendingConfirmation || isConfirming;
-        
         return (
             <button
                 onClick={handleBuy}
                 className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
-                    ${!isButtonDisabled ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
+                    ${!isProcessing ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
                     text-white font-semibold py-2 px-4 rounded-md shadow`}
-                disabled={isButtonDisabled}
+                disabled={isProcessing}
             >
-                {isProcessing ? 'Procesando...' :
-                 isPendingConfirmation ? 'Pendiente...' :
-                 isConfirming ? 'Confirmando...' :
-                 t("Comprar Ahora")}
+                {isProcessing ? (
+                    <div className="flex items-center justify-center">
+                        <span className="animate-spin mr-2">⚡</span>
+                        {isPendingConfirmation ? 'Confirmando...' : 'Procesando...'}
+                    </div>
+                ) : t("Comprar Ahora")}
             </button>
         );
     }
 
-    // Si no hay suficiente allowance, mostrar botón de aprobación
-    const isApproveDisabled = isProcessing || isPendingConfirmation || isConfirming;
-    
+    // Botón de aprobación
     return (
         <button
             onClick={handleApprove}
             className={`w-40 h-30 bg-gradient-to-r from-purple-500 to-gray-500 
-                ${!isApproveDisabled ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
+                ${!isProcessing ? 'hover:from-purple-600 hover:to-indigo-600' : 'opacity-70'} 
                 text-white font-semibold py-2 px-4 rounded-md shadow`}
-            disabled={isApproveDisabled}
+            disabled={isProcessing}
         >
-            {isProcessing ? 'Procesando...' :
-             isPendingConfirmation ? 'Pendiente...' :
-             isConfirming ? 'Confirmando...' :
-             'Aprobar'}
+            {isProcessing ? (
+                <div className="flex items-center justify-center">
+                    <span className="animate-spin mr-2">⚡</span>
+                    {isPendingConfirmation ? 'Confirmando...' : 'Aprobando...'}
+                </div>
+            ) : 'Aprobar'}
         </button>
     );
 }, [
@@ -510,17 +569,12 @@ const handleApprove = useCallback(async () => {
     selectedToken,
     allowance,
     amountUSD,
-    handleApprove,
-    handleBuy,
-    openConnectModal,
-    allowanceLoading,
-    balanceLoading,
     isProcessing,
     isPendingConfirmation,
-    isConfirming,
+    handleApprove,
+    handleBuy,
     t
 ]);
-
   // Inicio del JSX
   return (
     <I18nextProvider i18n={i18nfile}>
