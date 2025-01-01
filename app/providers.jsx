@@ -1,12 +1,15 @@
 'use client';
 
-import * as React from 'react';
-import { RainbowKitProvider, getDefaultConfig, darkTheme } from '@rainbow-me/rainbowkit';
+import React, { useState, useEffect } from 'react';
+import { createAppKit } from '@reown/appkit/react';
+import { WagmiProvider } from 'wagmi';
 import { bsc } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { http } from 'viem';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 
+// Configurar QueryClient
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,46 +17,55 @@ const queryClient = new QueryClient({
     },
   },
 });
-// mainnet 
 
-const config = getDefaultConfig({
-  appName: 'USVP Web3',
-  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
-  chains: [bsc],
-  transports: {
-    [bsc.id]: http('https://bsc-dataseed.bnbchain.org')
-  },
+// ID del proyecto de WalletConnect Cloud
+const projectId = '147f1ced0fc70fd33bc82189d73ebb43';
+
+// Metadata de la aplicación
+const metadata = {
+  name: 'USVP',
+  description: 'USVP Web3 Application',
+  url: typeof window !== 'undefined' ? window.location.origin : '',
+  icons: ['https://your-icon-url.com/icon.png']
+};
+
+// Configurar solo BSC como red
+const networks = [bsc];
+
+// Crear el adaptador Wagmi
+const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
   ssr: true,
-}); 
+});
 
-
-
-/*/  //testnet 
-const config = getDefaultConfig({
-  appName: 'USVP Web3',
-  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
-  chains: [bscTestnet ],
-  transports: {
-    [bscTestnet.id]: http('https://data-seed-prebsc-2-s1.bnbchain.org:8545')
-  },
-  ssr: true,
-}); 
-
-/*/ //testnet finaliza 
-
+// Crear el kit de la aplicación
+createAppKit({
+  adapters: [wagmiAdapter],
+  networks,
+  projectId,
+  metadata,
+  features: {
+    analytics: true
+  }
+});
 
 export function Providers({ children }) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider 
+        <RainbowKitProvider
           theme={darkTheme({
             accentColor: '#7b3fe4',
             accentColorForeground: 'white',
           })}
+          chains={networks}
         >
           {mounted && children}
         </RainbowKitProvider>

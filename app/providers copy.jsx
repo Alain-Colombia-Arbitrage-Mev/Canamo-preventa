@@ -1,56 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import {
-  RainbowKitProvider,
-  getDefaultConfig,
-  connectorsForWallets,
-  darkTheme
-} from '@rainbow-me/rainbowkit';
-import { metaMaskWallet,walletConnectWallet, trustWallet,coinbaseWallet, injectedWallet,binanceWallet} from '@rainbow-me/rainbowkit/wallets';
-import { 
-  WagmiProvider, 
-  createConfig,
-  http,
-} from 'wagmi';
+import { RainbowKitProvider, getDefaultConfig, darkTheme } from '@rainbow-me/rainbowkit';
 import { bsc } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WagmiProvider } from 'wagmi';
+import { http } from 'viem';
 
-const projectId = 'HYF8ezl7Y6MVyFvSMIb6Mdhwbf90DeRq';
-
-// Configure the wallets
-const wallets = [
-  {
-    groupName: 'Popular',
-    wallets: [
-      metaMaskWallet,
-      walletConnectWallet,
-      trustWallet,
-      coinbaseWallet,
-      injectedWallet,
-      binanceWallet,
-      
-      
-    ],
-  },
-];
-
-const connectors = connectorsForWallets(wallets, {
-  projectId: projectId,
-  appName: 'USVP Web3',
-  chains: [bsc],
-});
-
-// Create wagmi config
-const config = createConfig({
-  connectors,
-  chains: [bsc],
-  transports: {
-    [bsc.id]: http('https://bsc-dataseed.bnbchain.org'),
-  },
-});
-
-// Create the tanstack query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -58,6 +14,33 @@ const queryClient = new QueryClient({
     },
   },
 });
+// mainnet 
+
+const config = getDefaultConfig({
+  appName: 'USVP Web3',
+  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
+  chains: [bsc],
+  transports: {
+    [bsc.id]: http('https://bsc-dataseed.bnbchain.org')
+  },
+  ssr: true,
+}); 
+
+
+
+/*/  //testnet 
+const config = getDefaultConfig({
+  appName: 'USVP Web3',
+  projectId: '147f1ced0fc70fd33bc82189d73ebb43',
+  chains: [bscTestnet ],
+  transports: {
+    [bscTestnet.id]: http('https://data-seed-prebsc-2-s1.bnbchain.org:8545')
+  },
+  ssr: true,
+}); 
+
+/*/ //testnet finaliza 
+
 
 export function Providers({ children }) {
   const [mounted, setMounted] = React.useState(false);
@@ -67,7 +50,6 @@ export function Providers({ children }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider 
-          chains={[bsc]}
           theme={darkTheme({
             accentColor: '#7b3fe4',
             accentColorForeground: 'white',
